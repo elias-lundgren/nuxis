@@ -1,15 +1,17 @@
 {
   "name": "@nuxis/nuxis",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces"
   },
-  "type": "module",
   "devDependencies": {
     "@types/node": "^20.4.5",
     "rome": "^12.1.3",
     "typescript": "^5.1.6"
   },
-  "workspaces": ["nuxis"]
+  "workspaces": [
+    "nuxis"
+  ]
 }
