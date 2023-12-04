@@ -5,10 +5,7 @@
     "target": "es2022",
     "strict": true,
     "allowSyntheticDefaultImports": true,
-    "outDir": "dist",
     "declaration": true,
-    "rootDir": "src",
-    "sourceMap": true,
     "useUnknownInCatchVariables": false
   }
 }
