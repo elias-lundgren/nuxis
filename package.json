@@ -1,0 +1,21 @@
+{
+  "name": "nuxis",
+  "version": "0.0.0",
+  "description": "An extractor based backend framework",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc -p test/tsconfig.json && node --enable-source-maps --test"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^20.4.5",
+    "rome": "^12.1.3",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "path-to-regexp": "^6.2.1"
+  }
+}
