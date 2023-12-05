@@ -152,7 +152,7 @@ export class Router {
     return matchedHandlers
   }
 
-  async handleRequest(request: Request) {
+  async handleRequest(request: Request): Promise<Response> {
     const matchedHandlers = this.getHandlers(request)
 
     if (
