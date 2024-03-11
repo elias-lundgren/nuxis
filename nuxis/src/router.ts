@@ -3,9 +3,9 @@ import NuxisResponse, { type ResponseIsh } from './response.js'
 import NuxisRequest, { PathParams } from './request.js'
 import { ExtractedArgs, Extractor, extract } from './extractor.js'
 
-type Handler<
-  Extractors extends Extractor<Req>[],
-  Req extends NuxisRequest = NuxisRequest
+export type Handler<
+  Req extends NuxisRequest = NuxisRequest,
+  Extractors extends Extractor<Req>[] = []
 > = (
   ...args: [
     ...ExtractedArgs<Extractors, Req>,
@@ -22,23 +22,35 @@ type Register = <
   method: Method
   path: Path
   extractors: [...Extractors]
-  handler: Handler<Extractors, Req>
+  handler: Handler<Req, Extractors>
 }) => void
 
-type RegisterMethod = <
-  Path extends String,
+declare function registerMethod<
+  Path extends string,
   Extractors extends Extractor[],
   Req extends NuxisRequest = NuxisRequest<PathParams<Path>>
 >(
   path: Path,
-  extractors: Extractors,
-  handler: Handler<Extractors, Req>
-) => void
+  extractors: [...Extractors],
+  handler: Handler<Req, Extractors>
+): void
+
+declare function registerMethod<
+  Path extends string,
+  Req extends NuxisRequest = NuxisRequest<PathParams<Path>>
+>(path: Path, handler: Handler<Req>): void
+
+declare function registerMethod<
+  Extractors extends Extractor[],
+  Req extends NuxisRequest = NuxisRequest<{}>
+>(extractors: [...Extractors], handler: Handler<Req, Extractors>): void
+
+declare function registerMethod(handler: Handler): void
 
 type ErrorHandlersMap = Map<
   any,
   {
-    handler: Handler<Extractor[]>
+    handler: Handler<NuxisRequest, Extractor[]>
     extractors: Extractor[]
   }
 >
@@ -49,7 +61,7 @@ export class Router {
       MatchFn,
       Array<{
         method: string
-        handler: Handler<Extractor[]>
+        handler: Handler<NuxisRequest, Extractor[]>
         extractors: Extractor[]
         isMiddleware: boolean
       }>
@@ -105,7 +117,7 @@ export class Router {
       request: NuxisRequest
       handlers: Array<{
         method: string
-        handler: Handler<Extractor[]>
+        handler: Handler<NuxisRequest, Extractor[]>
         extractors: Extractor[]
         isMiddleware: boolean
       }>
@@ -229,7 +241,7 @@ export class Router {
   onError<
     Err,
     Extractors extends Extractor[],
-    H extends Handler<[() => Err, ...Extractors]>
+    H extends Handler<NuxisRequest, [() => Err, ...Extractors]>
   >(
     error: { new (...args: any[]): Err } | null,
     extractors: [...Extractors],
@@ -291,4 +303,84 @@ export class Router {
 
     return NuxisResponse.fromResponseIsh(response, request)
   }
+
+  registerMethod(method: string) {
+    return (a1: unknown, a2: unknown, a3: unknown) => {
+      if (
+        typeof a1 === 'string' &&
+        Array.isArray(a2) &&
+        typeof a3 === 'function'
+      ) {
+        const path = a1
+        const extractors = a2
+        const handler = a3
+        this.register({
+          method,
+          path,
+          extractors,
+          // @ts-ignore
+          handler
+        })
+      } else if (
+        typeof a1 === 'string' &&
+        typeof a2 === 'function' &&
+        typeof a3 === 'undefined'
+      ) {
+        const path = a1
+        const handler = a2
+
+        this.register({
+          method,
+          path,
+          extractors: [],
+          // @ts-ignore
+          handler
+        })
+      } else if (
+        Array.isArray(a1) &&
+        typeof a2 === 'function' &&
+        typeof a3 === 'undefined'
+      ) {
+        const extractors = a1
+        const handler = a2
+        this.register({
+          method,
+          path: '/(.*)',
+          extractors,
+          // @ts-ignore
+          handler
+        })
+      } else if (
+        typeof a1 === 'function' &&
+        typeof a2 === 'undefined' &&
+        typeof a3 === 'undefined'
+      ) {
+        const handler = a1
+        this.register({
+          method,
+          path: '/(.*)',
+          extractors: [],
+          // @ts-ignore
+          handler
+        })
+      }
+    }
+  }
+
+  // @ts-ignore
+  get: typeof registerMethod = this.registerMethod('get')
+  // @ts-ignore
+  put: typeof registerMethod = this.registerMethod('put')
+  // @ts-ignore
+  post: typeof registerMethod = this.registerMethod('post')
+  // @ts-ignore
+  options: typeof registerMethod = this.registerMethod('options')
+  // @ts-ignore
+  head: typeof registerMethod = this.registerMethod('head')
+  // @ts-ignore
+  all: typeof registerMethod = this.registerMethod('*')
+  // @ts-ignore
+  delete: typeof registerMethod = this.registerMethod('delete')
+  // @ts-ignore
+  patch: typeof registerMethod = this.registerMethod('patch')
 }

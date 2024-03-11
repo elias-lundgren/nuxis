@@ -1,9 +1,9 @@
 {
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
     "indentStyle": "space",
-    "indentSize": 2,
     "lineWidth": 80,
     "ignore": []
   },
@@ -12,10 +12,17 @@
       "quoteStyle": "single",
       "quoteProperties": "asNeeded",
       "trailingComma": "none",
-      "semicolons": "asNeeded"
+      "semicolons": "asNeeded",
+      "indentWidth": 2
     }
   },
   "linter": {
-    "enabled": true
+    "enabled": true,
+    "rules": {
+      "style": {
+        "noNonNullAssertion": "off"
+      }
+    }
   }
 }
+

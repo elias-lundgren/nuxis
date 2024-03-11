@@ -770,3 +770,77 @@ test('Null error handler extracts null', async () => {
   assert.equal(response.status, 500)
   assert.equal(e, null)
 })
+
+test('registerMethod works with only handler', async () => {
+  const router = new Router()
+
+  router.get(() => {
+    return new Response('Hello, world!')
+  })
+
+  const request = new Request('http://example.com/')
+  const response = await router.handleRequest(request)
+
+  const request2 = new Request('https://example.com/path')
+  const response2 = await router.handleRequest(request2)
+
+  assert.equal(response.status, 200)
+  assert.equal(await response.text(), 'Hello, world!')
+  assert.equal(response2.status, 200)
+  assert.equal(await response2.text(), 'Hello, world!')
+})
+
+test('registerMethod works with path and handler', async () => {
+  const router = new Router()
+
+  router.get('/hello', () => {
+    return new Response('Hello, world!')
+  })
+
+  const request = new Request('http://example.com/hello')
+  const response = await router.handleRequest(request)
+
+  const request2 = new Request('https://example.com/path')
+  const response2 = await router.handleRequest(request2)
+
+  assert.equal(response.status, 200)
+  assert.equal(await response.text(), 'Hello, world!')
+  assert.equal(response2.status, 404)
+})
+
+test('registerMethod works with extractors and handler', async () => {
+  const router = new Router()
+
+  router.get([(req) => 'hi'], (foo) => {
+    return new Response(foo)
+  })
+
+  const request = new Request('http://example.com/hello')
+  const response = await router.handleRequest(request)
+
+  const request2 = new Request('https://example.com/path')
+  const response2 = await router.handleRequest(request2)
+
+  assert.equal(response.status, 200)
+  assert.equal(await response.text(), 'hi')
+  assert.equal(response2.status, 200)
+  assert.equal(await response2.text(), 'hi')
+})
+
+test('registerMethod works with all parameters', async () => {
+  const router = new Router()
+
+  router.get('/', [() => 'hello'], (foo) => {
+    return new Response(foo)
+  })
+
+  const request = new Request('http://example.com/')
+  const response = await router.handleRequest(request)
+
+  const request2 = new Request('https://example.com/path')
+  const response2 = await router.handleRequest(request2)
+
+  assert.equal(response.status, 200)
+  assert.equal(await response.text(), 'hello')
+  assert.equal(response2.status, 404)
+})
