@@ -12,6 +12,7 @@
     "typescript": "^5.1.6"
   },
   "workspaces": [
-    "nuxis"
+    "nuxis",
+    "backend-uws"
   ]
 }

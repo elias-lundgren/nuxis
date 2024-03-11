@@ -3,5 +3,5 @@ import NuxisResponse, { ResponseIsh } from './response.js'
 import './response.js'
 
 export { Router } from './router.js'
-export { Backend } from './backend.js'
+export { Backend, App } from './app.js'
 export { NuxisRequest, NuxisResponse, ResponseIsh }
